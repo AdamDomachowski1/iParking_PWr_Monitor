@@ -1,0 +1,58 @@
+name: Parking Scraper Clever
+
+on:
+  schedule:
+    - cron: '0 22 * * *'  # Codziennie o godzinie 22:00
+  workflow_dispatch:  # Umożliwia ręczne uruchomienie akcji
+
+permissions:
+  contents: write  # Daje dostęp do zapisu w repozytorium
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'  # Wersja Pythona
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    - name: Run scraper script with error handling
+      run: python scrapper_script_clever.py  # Uruchomienie "clever" skryptu
+
+    - name: Run tests to check if data is valid
+      run: |
+        if [ ! -s parking_history_data.csv ]; then
+          echo "Parking history CSV is empty. Failing the workflow."
+          exit 1
+        fi
+        rows=$(wc -l < parking_history_data.csv)
+        if [ "$rows" -lt 2 ]; then
+          echo "Parking history CSV does not contain enough rows. Failing the workflow."
+          exit 1
+        fi
+        echo "Parking history data is valid."
+
+    - name: Check for changes and commit
+      run: |
+        if git diff --exit-code parking_history_data.csv; then
+          echo "No changes in data. Skipping commit."
+        else
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add parking_history_data.csv
+          git commit -m "Automatyczna aktualizacja danych historycznych parkingów"
+          git push
+        fi
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
