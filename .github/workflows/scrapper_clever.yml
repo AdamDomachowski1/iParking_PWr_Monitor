@@ -2,7 +2,7 @@ name: Parking Scraper Clever
 
 on:
   schedule:
-    - cron: '0 22 * * *'  # Codziennie o godzinie 22:00
+    - cron: '0 40 21 * * *'  # Codziennie o godzinie 22:00
   workflow_dispatch:  # Umożliwia ręczne uruchomienie akcji
 
 permissions:
