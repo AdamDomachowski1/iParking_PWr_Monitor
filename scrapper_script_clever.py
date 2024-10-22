@@ -62,10 +62,6 @@ def save_to_csv(all_data):
                 headers = ['Data', 'Czas', 'Polinka', 'Parking Wrońskiego', 'D20 - D21', 'GEO LO1 Geocentrum', 'Architektura']
                 writer.writerow(headers)
 
-            if has_data_today:
-                print(f'Dane z dzisiejszej daty ({current_date}) już istnieją.')
-                return
-
             data_by_time = {czas: [current_date, czas] + [''] * 5 for czas in unique_times}
 
             for idx, parking_id in enumerate([2, 4, 5, 6, 7], start=0):
